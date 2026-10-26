@@ -47,7 +47,7 @@ env:
 
 jobs:
   real-recorded-crash:
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, x64]
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4

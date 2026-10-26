@@ -17,7 +17,7 @@ jobs:
   pr-title:
     name: Conventional PR title
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     steps:
       - name: Validate title for Release Please
         env:
@@ -32,7 +32,7 @@ jobs:
 
   changes:
     name: Classify changes
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     outputs:
       code: ${{ steps.package.outputs.required }}
       package: ${{ steps.package.outputs.required }}
@@ -63,7 +63,7 @@ jobs:
     name: Static checks
     needs: changes
     if: ${{ always() }}
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     steps:
       - name: Require successful change classification
         env:
@@ -86,7 +86,7 @@ jobs:
     name: Test shard (${{ matrix.shard }})
     needs: [changes, build]
     if: github.event_name == 'push' || needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     strategy:
       fail-fast: false
       matrix:
@@ -123,7 +123,7 @@ jobs:
     name: Build package
     needs: changes
     if: github.event_name == 'push' || needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -143,7 +143,7 @@ jobs:
     name: Test (coverage + timing)
     needs: [changes, test-shard]
     if: ${{ always() }}
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     steps:
       - name: Require successful test shards
         env:
@@ -216,7 +216,7 @@ jobs:
     name: Source-built conformance fixtures
     needs: changes
     if: github.event_name == 'push' || needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -227,7 +227,7 @@ jobs:
     name: Build bundled Windows x64 native controls
     needs: changes
     if: github.event_name == 'push' || needs.changes.outputs.package == 'true'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -274,7 +274,7 @@ jobs:
           - os: macos-15-intel
             platform: darwin
             architecture: x64
-    runs-on: ${{ matrix.os }}
+    runs-on: "${{ (matrix.os) == 'ubuntu-latest' && fromJSON('[\"self-hosted\",\"linux\",\"x64\"]') || (matrix.os) == 'ubuntu-24.04-arm' && fromJSON('[\"self-hosted\",\"linux\",\"ARM64\"]') || (matrix.os) == 'macos-15' && fromJSON('[\"self-hosted\",\"macOS\",\"ARM64\"]') || (matrix.os) == 'macos-15-intel' && fromJSON('[\"self-hosted\",\"macOS\",\"x64\"]') || (matrix.os) }}"
     timeout-minutes: 20
     env:
       NODE_OPTIONS: "--max-old-space-size=1024"
@@ -309,7 +309,7 @@ jobs:
     name: Real Apple artifact CLI/MCP E2E
     needs: changes
     if: github.event_name == 'push' || needs.changes.outputs.code == 'true'
-    runs-on: macos-15
+    runs-on: [self-hosted, macOS, ARM64]
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -340,7 +340,7 @@ jobs:
     name: Reconstruction readiness
     needs: changes
     if: github.event_name == 'push' || needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -383,7 +383,7 @@ jobs:
           - os: windows-latest
             platform: win32
             architecture: x64
-    runs-on: ${{ matrix.os }}
+    runs-on: "${{ (matrix.os) == 'ubuntu-latest' && fromJSON('[\"self-hosted\",\"linux\",\"x64\"]') || (matrix.os) == 'ubuntu-24.04-arm' && fromJSON('[\"self-hosted\",\"linux\",\"ARM64\"]') || (matrix.os) == 'windows-latest' && fromJSON('[\"self-hosted\",\"windows\",\"x64\"]') || (matrix.os) }}"
     timeout-minutes: 10
     env:
       NODE_OPTIONS: "--max-old-space-size=1024"
@@ -411,7 +411,7 @@ jobs:
     name: Windows capability and package lane
     needs: [changes, windows-native-build]
     if: github.event_name == 'push' || needs.changes.outputs.package == 'true'
-    runs-on: windows-latest
+    runs-on: [self-hosted, windows, x64]
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -501,7 +501,7 @@ jobs:
   docs:
     name: Docs Generation
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
